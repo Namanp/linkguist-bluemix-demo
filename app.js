@@ -32,20 +32,23 @@ var appEnv = cfenv.getAppEnv();
 // start server on the specified port and binding host
 app.listen(appEnv.port, '0.0.0.0', function() {
 
-	// print a message when the server starts listening
+  // print a message when the server starts listening
   console.log("server starting on " + appEnv.url);
 });
 app.post("/", function(req,res) {
   var original_text = req.body.original_text
-	var language_translation = watson.language_translation({
+  var lang_input = req.body.la_input
+  var lang_output = req.body.la_output
+  console.log(original_text)
+  var language_translation = watson.language_translation({
     username: '1b6a15c0-8e59-431a-8584-a4bc8335b58f',
     password: 'qkjAS8S3yBcl',
     version: 'v2'
   });
   language_translation.translate({
     text: original_text,
-    source: 'en',
-    target: 'es'
+    source: lang_input,
+    target: lang_output
   }, function(err, translation) {
     if (err) {
       console.log(err);
@@ -57,5 +60,4 @@ app.post("/", function(req,res) {
       res.send({tmessage: trans_message})
      }
   });
-	console.log(original_text)
 })

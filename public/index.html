@@ -1,199 +1,30 @@
-<!DOCTYPE html>
+<!DOCTYPE html>	
 <html>
     <head>
-        <meta charset="UTF-8" />
-        <title>Linkguist</title>
-        <!-- Include Moxtra JavaScript Library -->
-        <script type="text/javascript" src="https://www.moxtra.com/api/js/moxtra-latest.js" id="moxtrajs"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-        <link rel="stylesheet" href="/stylesheets/index.css">
-        <link rel="icon" type="image/png" href="/images/favicon.png">
-        <!-- Authenticate/Initialize and get the "Access Token" for the user -->
-        <!-- Refer to the doc at https://developer.moxtra.com/docs/docs-oauth/#uniqueid to authenticate user based on UniqueID Method -->
-        <!-- For other authentication methods and overview refer to the doc at https://developer.moxtra.com/docs/docs-authentication/ -->
-        <!-- In this example user is authenticated and access token is passed as a URL parameter -->
-        <!-- JS function to get access token from the URL parameter -->
-        <script type="text/javascript" >
-            // function getURLParameter(name) {
-            //     return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-            // }
-            // function parseURI() {
-            //     var uri = window.location.hash.substring(1);
-            //     var elements = uri.split('&');
-            //     var data = new Object();
-            //     for(i = 0; i < elements.length; i++) {
-            //         var cur = elements[i].split('=');
-            //         data[cur[0]] = cur[1];
-            //     }
-            //     return data;
-            // }
-            var access_token;
-            var last_message = "";
-            var posturl = "";
-            function send_translated_message(message){
-                console.log(message)
-                last_message = message;
-                $.ajax({
-                    method: "POST",
-                    url: posturl,
-                    dataType: "json",
-                    contentType: "application/json", 
-                    data: JSON.stringify({
-                    text: message
-                    }),
-                    success: function(data, textStatus, jqXHR) {
-                        console.log(textStatus);
-                        },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        console.log(textStatus);
-                        }
-                        });
-            }
-
-            function translate(message){
-
-                $.ajax({
-                        url: '/',
-                        type: 'POST',
-                        data: { original_text: message},
-                        async: false,
-                    success: function (data, textStatus, jqXHR) {
-                        send_translated_message(data.tmessage)
-                    },
-                    error: function () {
-                        alert("error");
-                    }
-                }); 
-            }
-
-            function get_access_token() { 
-                
-                var client_id = "lZzzYnnz8No";
-                var client_secret = "tC87sYCKZ1o";
-                var uniqueid = "user3";
-                var timestamp = new Date().getTime();
-                //var hash = CryptoJS.HmacSHA256(client_id + "" + uniqueid + "" + timestamp, client_secret);
-                //var signature = rtrim(strtr(CryptoJS.enc.Base64.stringify(hash), '+/', '-_'), '=');
-                var firstname = "Naman";
-
-                $.ajax({
-                    method: "POST",
-                    url: "https://apisandbox.moxtra.com/oauth/token",
-                    data: {
-                    client_id: client_id,
-                    client_secret: client_secret,
-                    grant_type: "http://www.moxtra.com/auth_uniqueid",
-                    uniqueid: uniqueid,
-                    timestamp: timestamp,
-                    //signature: signature,
-                    firstname: firstname
-                    },
-                    async: false,
-                    success: function(data, textStatus, jqXHR) {
-                        access_token = data.access_token;
-                        console.log(access_token);
-                        },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        console.log(textStatus);
-                        }
-                        });
-            
-                if (access_token) {
-                    // Initialize Moxtra SDK Object
-                    var options = {
-                        mode: "sandbox", 
-                        client_id: client_id, //
-                        access_token: access_token,
-                        invalid_token: function(event) {
-                            //Triggered when the access token is expired or invalid
-                            alert("Access Token expired for session id: " + event.session_id);
-                        }
-                    };
-                    Moxtra.init(options);
-                }
-                else {
-                    //Authenticate and get access token for the user before proceeding further
-                    console.log ("No access token found");
-                }
-            }
-        
-        </script>
-        
-        <!-- Start Chat Function -->
-        <script type="text/javascript">
-        function start_chat () {
-        console.log("We've Started")            
-            var chat_options = {
-                //unique id of the users who will be part of the chat. These users should already exist in Moxtra.
-                //binder_id: "linkguist",
-                unique_id: "user1",
-                iframe: true,
-                //ID of the HTML tag within which the chat window will show up. Refer https://developer.grouphour.com/moxo/docs-js-sdk/#conversation
-                tagid4iframe: "chat_container",
-                iframewidth: "500px",
-                iframeheight: "500px",
-                autostart_meet: false,
-                autostart_note: false,
-                extension: { "show_dialogs": { "member_invite": true } },
-                start_chat: function(event) {
-                        console.log("Chat started.")
-                    console.log("Chat started binder ID: " + event.binder_id);
-                    //Your application server can upload files to draw using the binder_id and access_token
-                },
-                start_meet: function(event) {
-                    console.log("Meet started session key: " + event.session_key + " session id: " + event.session_id);
-                },
-                end_meet: function(event) {
-                    console.log("Meet end event");
-                },
-                invite_member: function(event) {
-                    console.log("Invite member into binder Id: " + event.binder_id);
-                },
-                request_note: function(event) {
-                    console.log("Note start request");
-                },
-                publish_feed: function(event){
-                    new_message = event.message.slice(event.message.indexOf(" ") + 1)
-                    console.log(new_message);
-                    console.log(last_message)
-                    if (new_message != last_message){
-                    posturl = "https://apisandbox.moxtra.com/" + event.binder_id + "/comments?access_token="+access_token;
-                    console.log(posturl)
-                    translate(new_message)
-                } else {
-                    console.log("Duplicate Message " + event.message)
-                }
-                
-                },
-                error: function(event) {
-                    console.log("Chat error code: " + event.error_code + " error message: " + event.error_message);
-                }
-
-            };            
-            Moxtra.chat(chat_options);
-        }
-        </script>
-            
+    	<title>Welcome</title>
+    	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    	<link rel="stylesheet" href="stylesheets/splash.css">
+    	<link rel="icon" type="image/png" href="images/favicon.png">
     </head>
-    <body onload="get_access_token()">
-        
-        <div class="jumbotron">
-            <img src="/images/notitle.png"/>
-            <div class="container">
-            </div>
-        </div>
-           
-        <div class="container" id="stuff">
-            <div id="chat_container"> </div>
 
-        </div>
-        
-        <div id="chat">
-            <h3><a id="getToken" href="javascript:start_chat();">Moxtra Chat</a></h3>
-        </div>
-        <div id="closing">
-            <p style="color=#7abcf2">Brought to you by Eric Hou & Associates</p>
+    <body>
+    	<div class="jumbotron">
+      		<div class="container"></div>
+    	</div> 
+    	<div id="pick">
+    	<h1> Pick your language </h1>
+    	<br>
     </div>
+    	<div id="buttonflags">
+			<!-- <div style="display:flex;justify-content:center;align-items:flex-end;">
+  				<div style="height:150px;"> -->
+
+  				<span>
+				<a href="english.html"> <img class="image" src="/images/usa.png" style="margin-left:450px"/></a>
+				<a href="spanish.html"> <img class="image" src="/images/es.png" style="margin-left:240px"/></a>
+				</span>
+				</div>
+			</div>
+    	</div>
     </body>
 </html>
