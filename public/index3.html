@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8" />
@@ -133,81 +132,12 @@
                     //Authenticate and get access token for the user before proceeding further
                     console.log ("No access token found");
                 }
-                start_chat()
+                //start_chat()
             }
         
         </script>
         
-        <!-- Start Chat Function -->
-        <script type="text/javascript">
-        function start_chat () {
-        console.log("We've Started")            
-            var chat_options = {
-                //unique id of the users who will be part of the chat. These users should already exist in Moxtra.
-                //binder_id: "linkguist",
-                unique_id: "english4",
-                iframe: true,
-                //ID of the HTML tag within which the chat window will show up. Refer https://developer.grouphour.com/moxo/docs-js-sdk/#conversation
-                tagid4iframe: "chat_container",
-                iframewidth: get_iframe_width().toString()+"px",
-                iframeheight: get_iframe_height().toString()+"px",
-                autostart_meet: true,
-                autostart_note: true,
-                extension: { "show_dialogs": { "member_invite": true } },
-                start_chat: function(event) {
-                        console.log("Chat started.")
-                    console.log("Chat started binder ID: " + event.binder_id);
-                    //Your application server can upload files to draw using the binder_id and access_token
-                },
-                start_meet: function(event) {
-                    console.log("Meet started session key: " + event.session_key + " session id: " + event.session_id);
-                },
-                end_meet: function(event) {
-                    console.log("Meet end event");
-                },
-                invite_member: function(event) {
-                    console.log("Invite member into binder Id: " + event.binder_id);
-                },
-                request_note: function(event) {
-                    console.log("Note start request");
-                },
-                publish_feed: function(event){
-                    new_message = event.message.slice(event.message.indexOf(" ") + 1)
-                    console.log(new_message);
-                    console.log(last_message)
-                    if (new_message != last_message){
-                    posturl = "https://apisandbox.moxtra.com/" + event.binder_id + "/comments?access_token="+access_token;
-                    console.log(posturl)
-                    translate(new_message)
-                } else {
-                    console.log("Duplicate Message " + event.message)
-                }
-                
-                },
-                error: function(event) {
-                    console.log("Chat error code: " + event.error_code + " error message: " + event.error_message);
-                }
-
-            };            
-            Moxtra.chat(chat_options);
-        }
-        </script>
-            
     </head>
     <body onload="get_access_token()">
-        
-        <div class="jumbotron">
-            <img src="/images/notitle.png"/>
-            <div class="container">
-            </div>
-        </div>
-           
-        <div class="container" id="stuff">
-            <div id="chat_container"> </div>
-
-        </div>
-        <div id="closing">
-            <p style="color=#7abcf2">Brought to you by Eric Hou & Associates</p>
-    </div>
     </body>
 </html>
